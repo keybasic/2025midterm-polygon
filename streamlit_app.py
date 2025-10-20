@@ -1,7 +1,7 @@
 
 import streamlit as st
 
-st.set_page_config(page_title="다각형 내각의 합 학습 앱", page_icon="📐")
+st.set_page_config(page_title="다각형 내각의 합 학습 앱✍️", page_icon="📐")
 st.title("다각형 내각의 합 단계별 학습")
 
 # 1단계: 삼각형 내각의 합 퀴즈
@@ -66,7 +66,8 @@ elif st.session_state['triangle_quiz_step'] == 'done':
         fig, ax = plt.subplots(figsize=(4,4))
         n = st.session_state['polygon_vertex']
         angles = np.linspace(0, 2*np.pi, n, endpoint=False)
-        points = np.array([[np.cos(a), np.sin(a)] for a in angles])
+        scale = 0.75  # 도형 크기 축소 비율 (1.0보다 작게 설정)
+        points = np.array([[scale * np.cos(a), scale * np.sin(a)] for a in angles])
         polygon = np.vstack([points, points[0]])
         ax.plot(polygon[:,0], polygon[:,1], 'o-', color='blue')
         # 한 꼭짓점(0번)에서 대각선 그리기 (변은 제외)
@@ -82,6 +83,39 @@ elif st.session_state['triangle_quiz_step'] == 'done':
         st.info(f"한 꼭짓점에서 {diagonal_count}개의 대각선을 그릴 수 있어요! (변은 제외한 대각선만 계산)")
         st.info(f"이렇게 하면 {n-2}개의 삼각형으로 분할할 수 있어요!")
         # 다음 단계: 분할된 삼각형 개수 퀴즈로 이동 예정
+
+        # 추가: 다양한 모습(정다각형/비정다각형)을 2초 간격으로 번갈아 보여주기
+        if st.button("다양한 모습 보기"):
+            import time
+            import numpy as np
+            import matplotlib.pyplot as plt
+            from random import random
+
+            frames = 3  # 총 보여줄 프레임 수 (번갈아 보여줌)
+            anim_container = st.empty()
+            for i in range(frames):
+                fig2, ax2 = plt.subplots(figsize=(4,4))
+                if i % 2 == 0:
+                    # 정다각형
+                    pts = points
+                else:
+                    # 비정다각형: 반경과 각도를 약간씩 무작위로 흔들어 비정형으로 만듦
+                    ang_perturb = (np.random.rand(n) - 0.5) * (np.pi / 12)
+                    # radii가 scale을 기준으로 작아지도록 함
+                    radii = scale + (np.random.rand(n) - 0.5) * 0.15
+                    angles2 = angles + ang_perturb
+                    pts = np.array([[radii[j] * np.cos(angles2[j]), radii[j] * np.sin(angles2[j])] for j in range(n)])
+                poly = np.vstack([pts, pts[0]])
+                ax2.plot(poly[:,0], poly[:,1], 'o-', color='blue')
+                # 한 꼭짓점(0번)에서 대각선 그리기 (변은 제외)
+                for j in range(1, n):
+                    if j != 1 and j != n-1:
+                        ax2.plot([pts[0,0], pts[j,0]], [pts[0,1], pts[j,1]], '--', color='orange')
+                ax2.set_aspect('equal')
+                ax2.axis('off')
+                anim_container.pyplot(fig2)
+                time.sleep(3)
+            # 애니메이션 종료 후 마지막 이미지는 유지
 
         # 3단계: 삼각형 분할 개수 퀴즈
         if 'triangle_split_quiz_step' not in st.session_state:
