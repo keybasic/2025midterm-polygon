@@ -1,7 +1,7 @@
 
 import streamlit as st
 
-st.set_page_config(page_title="다각형 내각의 합 학습 앱✍️", page_icon="📐")
+st.set_page_config(page_title="다각형 내각의 합 학습 앱", page_icon="📐")
 st.title("다각형 내각의 합 단계별 학습")
 
 # 1단계: 삼각형 내각의 합 퀴즈
@@ -63,11 +63,10 @@ elif st.session_state['triangle_quiz_step'] == 'done':
     if st.session_state['polygon_vertex']:
         import matplotlib.pyplot as plt
         import numpy as np
-        fig, ax = plt.subplots(figsize=(4,4))
+        fig, ax = plt.subplots(figsize=(2,2))
         n = st.session_state['polygon_vertex']
         angles = np.linspace(0, 2*np.pi, n, endpoint=False)
-        scale = 0.75  # 도형 크기 축소 비율 (1.0보다 작게 설정)
-        points = np.array([[scale * np.cos(a), scale * np.sin(a)] for a in angles])
+        points = np.array([[np.cos(a), np.sin(a)] for a in angles])
         polygon = np.vstack([points, points[0]])
         ax.plot(polygon[:,0], polygon[:,1], 'o-', color='blue')
         # 한 꼭짓점(0번)에서 대각선 그리기 (변은 제외)
@@ -91,18 +90,17 @@ elif st.session_state['triangle_quiz_step'] == 'done':
             import matplotlib.pyplot as plt
             from random import random
 
-            frames = 3  # 총 보여줄 프레임 수 (번갈아 보여줌)
+            frames = 4  # 총 보여줄 프레임 수 (번갈아 보여줌)
             anim_container = st.empty()
             for i in range(frames):
-                fig2, ax2 = plt.subplots(figsize=(4,4))
+                fig2, ax2 = plt.subplots(figsize=(2,2))
                 if i % 2 == 0:
                     # 정다각형
                     pts = points
                 else:
                     # 비정다각형: 반경과 각도를 약간씩 무작위로 흔들어 비정형으로 만듦
                     ang_perturb = (np.random.rand(n) - 0.5) * (np.pi / 12)
-                    # radii가 scale을 기준으로 작아지도록 함
-                    radii = scale + (np.random.rand(n) - 0.5) * 0.15
+                    radii = 1 + (np.random.rand(n) - 0.5) * 0.2
                     angles2 = angles + ang_perturb
                     pts = np.array([[radii[j] * np.cos(angles2[j]), radii[j] * np.sin(angles2[j])] for j in range(n)])
                 poly = np.vstack([pts, pts[0]])
